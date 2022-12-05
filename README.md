@@ -31,7 +31,7 @@ Might be considering to change to this big guy if later on the components cannot
 #### Troubleshooting
 ADPS motion detection is unstable, it almost can only detect the presence of our hands but not the motion/direction. 
 
-Check debug output below, when hands waving on top of the sensor, whatever gesture we made, the raw data is present but not in big difference, after calculation, the gesture is always treated as '0'(up).
+We reference the python src code for adps motion detection, and programmed out c code in similar algorithm logic. However, check debug output below, when hands waving on top of the sensor, whatever gesture we made, the raw data is present but not in big difference, after calculation, the gesture is always treated as '0'(up).
 
 <img width="524" alt="bug1 1" src="https://user-images.githubusercontent.com/84453030/205532401-33baf868-be4c-4dc0-b9ba-2ef550c36460.png">
 <img width="524" alt="bug1 2" src="https://user-images.githubusercontent.com/84453030/205532409-d556929f-a6cf-4c06-a7e1-e7f32df8fe6f.png">
