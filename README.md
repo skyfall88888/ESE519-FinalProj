@@ -1,5 +1,23 @@
 # ESE519-FinalProj    “Wrangler”
 
+### Demonstration
+
+The Completed Wrangler looks like: 
+
+![image](https://github.com/skyfall88888/ESE519-FinalProj/blob/main/Wrangler.jpg)
+
+Several demo gif in action:
+
+---Joystick Mode:
+
+Use the joystick located on the left hand side of the horse to control the direction of the Wrangler.
+
+https://github.com/skyfall88888/ESE519-FinalProj/blob/main/Wrangler_joystick_mode.gif
+
+---Sound Mode:
+
+Make any sound would drive the Wrangler forward, at the same time, wave the whip and hit the horse once.
+
 ### Overview
 
 Updated system diagram:
