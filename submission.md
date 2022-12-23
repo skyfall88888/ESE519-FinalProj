@@ -71,36 +71,73 @@ Finally it look like this!
 
 
 ## Troubles we met
-1. Problem 1: Servo motor
+**1. Problem 1: Servo motor**
 
-Problem: the starting, ending angle of servo motor are not precise. The rotation rate of servo motor is not stable.
+**Problem:** the starting, ending angle of servo motor are not precise. The rotation rate of servo motor is not stable.
 Often times it just clogs.
 
-Solution: implement an additional servo motor driver voltage level shifter breakout board that takes in a GPIO PWM and outputs a higher- voltage-protected PWM wave that feeds to the servo motor. With separate power supply and reworked PWM wave GPIO output, the behaviour is now stable.
+**Solution:** implement an additional servo motor driver voltage level shifter breakout board that takes in a GPIO PWM and outputs a higher- voltage-protected PWM wave that feeds to the servo motor. With separate power supply and reworked PWM wave GPIO output, the behaviour is now stable.
 
- Problem 2: Sound sensor
+**Problem 2: Sound sensor**
  
-Problem: sound sensor tends to behave unstably with different main.c settings(loop VS one go). And it tends to have limited accuracy distinguishing between short sharp sounds and long gentle sounds.
+**Problem:** sound sensor tends to behave unstably with different main.c settings(loop VS one go). And it tends to have limited accuracy distinguishing between short sharp sounds and long gentle sounds.
 
-Solution: Reconfigured the structure of code. Changing looped sound.c to a one-go structure. Redesigned the way function gets called. Redesigned the way ADC reads in the analog input and the threshold values.
+**Solution:** Reconfigured the structure of code. Changing looped sound.c to a one-go structure. Redesigned the way function gets called. Redesigned the way ADC reads in the analog input and the threshold values.
 
- Problem 3: joystick
+![ezgif com-gif-maker (4)](https://user-images.githubusercontent.com/84453030/205533408-7cd24c92-dc22-4238-bcc6-a89e86ae4948.gif)
 
-Problem: the output range of joystick is quite random. Distinguishing left and right can be confusing. Because of the analog nature of the joystick, there is no actual solution. We redesigned the determining algorithm to better improve the accuracy.
+**Problem 3: joystick**
 
- Problem 4: main.c
+**Problem:** the output range of joystick is quite random. Distinguishing left and right can be confusing. Because of the analog nature of the joystick, there is no actual best solution. 
+**Solution:** We redesigned the determining algorithm to better improve the accuracy. 
+
+**Problem 4: main logic**
  
-Problem: our initial plan was to pick up the following inputs in a sequencer: sound->apds->joystick. But when implementing this function, it gets stuck in one sensor, or, several inputs try to take over at the same time. It also happens when the main has passed the sound input part when the input sound was made. This led to an extremely unstable response from the system.
+**Problem:** our initial plan was to pick up the following inputs in a sequencer: sound->apds->joystick. But when implementing this function, it gets stuck in one sensor, or, several inputs try to take over at the same time. This led to an extremely unstable response from the system.
 
-Meanwhile, ADPS motion detection is unstable, it almost can only detect the presence of our hands but not the motion/direction. We reference the python src code for adps motion detection, and programmed out c code in similar algorithm logic. However, check debug output below, when hands waving on top of the sensor, whatever gesture we made, the raw data is present but not in big difference, after calculation, the gesture is always treated as '0'(up).
+Meanwhile, ADPS motion detection is unstable, it almost can only detect the presence of our hands but not the motion/direction. We reference the python src code for adps motion detection, and programmed out c code in similar algorithm logic. However, check debug output below, when hands waving on top of the sensor, whatever gesture we made, the raw data is present but not in big difference, after calculation, the gesture is most of the time treated as '0'(up).
 
 <img width="324" alt="bug1 1" src="https://user-images.githubusercontent.com/84453030/205532401-33baf868-be4c-4dc0-b9ba-2ef550c36460.png">
 <img width="324" alt="bug1 2" src="https://user-images.githubusercontent.com/84453030/205532409-d556929f-a6cf-4c06-a7e1-e7f32df8fe6f.png">
 
-Solution: We decided to change the setting to a new algorithm: use apds to control/switch between 2 modes: 1. sound mode, 2. joystick mode. Waving the hand at the apds will switch one mode to another.
+**Solution:** We decided to change the setting to a new algorithm: use apds to control/switch between 2 modes: 1. sound mode, 2. joystick mode. Waving the hand at the apds will switch one mode to another.
+```mermaid
+graph LR;
+    A[Get distance data from ADPS 9960] --> B{< 200}
+    B -->|Yes| C[Switch Mode]
+    C --> D[Sound Mode] --> A
+    C --> E[Joystick Mode] --> A
+    B ---->|No| A
+```
 
 ## What did we learn
 
 ## About PIO 
+We used PIO for the LED on QT PY board and to drive the APDS9960 distance/motion sensor.
+
+The general steps we programmed the PIO state machine are:
+
+1. Determine which PIO instance to use(out of 2) PIO pio = pio0; PIO pio = pio1; 
+
+2. Assign instructions into instruction memory with sufficient space uint offset = pio_add_program(pio, &program_name_here) 
+
+3. Find an available state machine uint sm = pio_claim_unused_sm(pio, true); some_kind_of_program_init(pio, sm, offset, PICO_DEFAULT_LED_PIN); 
+ 
+5. Up to this point, state machine is ready and running.
+
+
+
+PIO's advantages:
+1. With pio, we can basicly implement whatever protocol needed for the I/O communication. It's far more powerful and convenient over bit-banging. If using bit-banging, it will continuously consumes the memory and kernel of the PC, while the computer has other tasks to do.  for slower protocols you might be able to use an IRQ to wake up the processor from what it was doing fast enough (though latency here is a concern) to send the next bit(s). But PC-class processors keep many hundreds of instructions in-flight on a single core at once, which has drawbacks when trying to switch rapidly between hard real time tasks. 
+
+2. PIO has it's strict timestamps, each instruction takes exactly one cycle, so it make it easier for the timing when programming and gives more control to the programmer. 
+
+3. PIO states machine runs independently from the main processor, it saves memory, efficiency and pins.
+
+These features make PIO a unique asset for a microcontroller.
+
+
 
 ## Our Team
+Yu Feng   https://github.com/skyfall88888
+Thea Yu   https://github.com/Thea-E
