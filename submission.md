@@ -124,6 +124,15 @@ We attempted ADPS motion detection extensively through adopting the detection al
 
 ## What did we learn
 
+1. Method of dealing with multi-file C project based on embedded systems. 
+
+2. Use of Cmake tool to configure and compile files involving multiple libraries.
+
+3. Real-world embedded system debugging including both hardware and software sections.
+
+4. Implement hardware-based circuits with software control.
+
+
 ## About PIO 
 PIO was used for the LED(mode indicator) and to drive the APDS9960 distance/motion sensor.
 
